@@ -1,27 +1,27 @@
-require "../../src/graphql"
+require "../../src/graphene/dsl"
 require "./models/*"
 require "./resolvers/*"
 
-class BankAccountType < Graphql::DSL::Object
-  graphql_name "BankAccount"
+class BankAccountType < Graphene::DSL::Object
+  name "BankAccount"
 
-  field :id, Graphql::DSL::Id, null: true
-  field :accountNumber, Graphql::DSL::String, null: true
+  field :id, Graphene::DSL::Id, null: true
+  field :accountNumber, Graphene::DSL::String, null: true
 
   def accountNumber(object : BankAccount, argument_values)
     object.account_number
   end
 end
 
-class CreditCardType < Graphql::DSL::Object
-  graphql_name "CreditCard"
+class CreditCardType < Graphene::DSL::Object
+  name "CreditCard"
 
-  field :id, Graphql::DSL::Id, null: true
-  field :last4, Graphql::DSL::String, null: true
+  field :id, Graphene::DSL::Id, null: true
+  field :last4, Graphene::DSL::String, null: true
 end
 
-class PaymentMethodType < Graphql::DSL::Union
-  graphql_name "PaymentMethod"
+class PaymentMethodType < Graphene::DSL::Union
+  name "PaymentMethod"
 
   possible_types CreditCardType, BankAccountType
 
@@ -35,9 +35,9 @@ class PaymentMethodType < Graphql::DSL::Union
   end
 end
 
-class TransactionInterface < Graphql::DSL::Interface
-  field :id, Graphql::DSL::Id, null: false
-  field :reference, Graphql::DSL::String, null: false
+class TransactionInterface < Graphene::DSL::Interface
+  field :id, Graphene::DSL::Id, null: false
+  field :reference, Graphene::DSL::String, null: false
 
   def self.resolve_type(object, context)
     case object
@@ -49,12 +49,12 @@ class TransactionInterface < Graphql::DSL::Interface
   end
 end
 
-class ChargeStatus < Graphql::DSL::Enum
+class ChargeStatus < Graphene::DSL::Enum
   value "PENDING", value: "pending"
   value "PAID", value: "paid"
 end
 
-class RefundLoader < Graphql::Loader(Int32, Refund?)
+class RefundLoader < Graphene::Loader(Int32, Refund?)
   def perform(load_keys)
     load_keys.each do |key|
       fulfill(key, Refund.new(key, "pending", "r_12345", false))
@@ -62,8 +62,8 @@ class RefundLoader < Graphql::Loader(Int32, Refund?)
   end
 end
 
-class ChargeType < Graphql::DSL::Object
-  graphql_name "Charge"
+class ChargeType < Graphene::DSL::Object
+  name "Charge"
 
   implements TransactionInterface
 
@@ -80,12 +80,12 @@ class ChargeType < Graphql::DSL::Object
   end
 end
 
-class RefundStatus < Graphql::DSL::Enum
+class RefundStatus < Graphene::DSL::Enum
   value "PENDING", value: "pending"
   value "REFUNDED", value: "refunded"
 end
 
-class PaymentMethodLoader < Graphql::Loader(Int32, BankAccount | CreditCard | Nil)
+class PaymentMethodLoader < Graphene::Loader(Int32, BankAccount | CreditCard | Nil)
   def perform(load_keys)
     load_keys.each do |key|
       fulfill(key, BankAccount.new(1, "1234578"))
@@ -93,14 +93,14 @@ class PaymentMethodLoader < Graphql::Loader(Int32, BankAccount | CreditCard | Ni
   end
 end
 
-class RefundType < Graphql::DSL::Object
-  graphql_name "Refund"
+class RefundType < Graphene::DSL::Object
+  name "Refund"
 
   implements TransactionInterface
 
   field :status, RefundStatus, null: true
 
-  field :partial, Graphql::DSL::Boolean, null: true
+  field :partial, Graphene::DSL::Boolean, null: true
 
   field :payment_method, PaymentMethodType, null: true
 
@@ -116,11 +116,11 @@ class RefundType < Graphql::DSL::Object
 end
 
 
-class QueryType < Graphql::DSL::Object
-  graphql_name "Query"
+class QueryType < Graphene::DSL::Object
+  name "Query"
 
   field :charge, ChargeType, null: true do
-    argument :id, Graphql::DSL::Id, required: true
+    argument :id, Graphene::DSL::Id, required: true
   end
 
   def charge(object, argument_values)
@@ -157,6 +157,6 @@ class QueryType < Graphql::DSL::Object
   end
 end
 
-class DummySchema < Graphql::DSL::Schema
+class DummySchema < Graphene::DSL::Schema
   query QueryType
 end

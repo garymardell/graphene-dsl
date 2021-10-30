@@ -1,14 +1,13 @@
-name: graphql
+name: graphene-dsl
 version: 0.1.1
 
 authors:
   - Gary Mardell <info@garymardell.co.uk>
 
-crystal: 0.31.1
+crystal: 1.1.1
 
 dependencies:
-  promise:
-    github: spider-gazelle/promise
-    branch: master
+  graphene:
+    github: garymardell/graphene
 
 license: MIT
