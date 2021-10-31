@@ -10,6 +10,10 @@ module Graphene
       include Named
       include Fields
 
+      macro argument(name, type, required)
+        @[Argument(name: "{{name.id}}", type: {{type}}, required: {{required}})]
+      end
+
       macro implements(*interfaces)
         def self.interfaces
           interfaces = [] of Graphene::DSL::Interface.class

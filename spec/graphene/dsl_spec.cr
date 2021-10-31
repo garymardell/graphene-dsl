@@ -17,18 +17,28 @@ describe Graphene::DSL do
 
   it "executes a mutation" do
     query_string = <<-QUERY
-      mutation CreateCharge {
-        createCharge {
+      mutation CreateCharge($reference : String!) {
+        createCharge(reference: $reference) {
           charge {
             id
+            reference
           }
         }
       }
     QUERY
 
-    result = DummySchema.execute(query_string)["data"]
+    variables = JSON.parse <<-STRING
+      {
+        "reference": "testing"
+      }
+    STRING
+
+    result = DummySchema.execute(
+      query_string,
+      variables: variables.as_h
+    )["data"]
 
 
-    result.should eq({ "createCharge" => { "charge" => { "id" => "1" } } })
+    result.should eq({ "createCharge" => { "charge" => { "id" => "1", "reference" => "testing" } } })
   end
 end

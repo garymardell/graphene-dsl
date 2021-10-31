@@ -1,12 +1,8 @@
 module Graphene
   module DSL
     module Fields
-      macro argument(name, type, required)
-        @[Argument(name: "{{name.id}}", type: {{type}}, required: {{required}})]
-      end
-
       macro field(name, mutation)
-        @[Field(name: "{{name.id}}", type: mutation, null: false)]
+        @[Field(name: "{{name.id}}", type: {{mutation}}, null: false)]
         def self.{{name.id}}_resolve(object, field_name, argument_values)
           klass = new
           klass.{{name.id}}(object, argument_values)
@@ -17,6 +13,10 @@ module Graphene
           klass.resolve(argument_values)
         end
 
+        def self.{{name.id}}_arguments(context)
+          {{mutation}}.arguments(context)
+        end
+
         def self.{{name.id}}_type(context)
           field_type = {{mutation}}.compile(context)
 
@@ -25,7 +25,7 @@ module Graphene
       end
 
       macro field(name, type, null, &blk)
-        @[Field(name: "{{name.id}}", type: type, null: null)]
+        @[Field(name: "{{name.id}}", type: {{type}}, null: null)]
         {{blk && blk.body}}
         def self.{{name.id}}_resolve(object, field_name, argument_values)
           klass = new
@@ -41,6 +41,11 @@ module Graphene
               object.{{name.id}}
             end
           end
+        end
+
+        # TODO: Refactor to get arguments for this field to avoid concat below
+        def self.{{name.id}}_arguments(context)
+          [] of Graphene::Schema::Argument
         end
 
         def self.{{name.id}}_type(context)
@@ -96,6 +101,8 @@ module Graphene
                 type: {{argument["type"]}}.compile(context)
               )
             {% end %}
+
+            arguments.concat self.{{method.annotation(Field)["name"].id}}_arguments(context)
 
             fields << Graphene::Schema::Field.new(
               name: {{ method.annotation(Field)["name"] }},

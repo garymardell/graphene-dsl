@@ -157,11 +157,13 @@ class QueryType < Graphene::DSL::Object
 end
 
 class CreateCharge < Graphene::DSL::Mutation
+  argument :reference, Graphene::DSL::String, required: true
+
   field :charge, ChargeType, null: true
 
   def resolve(argument_values)
     {
-      "charge" => Charge.new(id: 1, status: "paid", reference: "ch_1234")
+      "charge" => Charge.new(id: 1, status: "paid", reference: argument_values["reference"].to_s)
     }
   end
 end
