@@ -2,8 +2,8 @@ require "./object"
 
 module Graphene
   module DSL
-    class ObjectResolver < Graphene::Schema::Resolver
-      def initialize(klass : Graphene::DSL::Object.class)
+    class DelegateResolver < Graphene::Schema::Resolver
+      def initialize(klass : Graphene::DSL::Object.class | Graphene::DSL::Mutation.class)
         @klass = klass
       end
 

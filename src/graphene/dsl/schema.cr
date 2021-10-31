@@ -1,8 +1,19 @@
 module Graphene
   module DSL
     class Schema
+      def self.mutation
+        nil
+      end
+
+
       macro query(object)
         def self.query
+          {{object}}
+        end
+      end
+
+      macro mutation(object)
+        def self.mutation
           {{object}}
         end
       end
@@ -10,7 +21,8 @@ module Graphene
       macro finished
         def self.compile(context = nil) : Graphene::Schema
           Graphene::Schema.new(
-            query: self.query.compile(context)
+            query: self.query.compile(context),
+            mutation: self.mutation.try(&.compile(context))
           )
         end
 

@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 describe Graphene::DSL do
-  it "executes" do
+  it "executes a query" do
     query_string = <<-QUERY
       query {
         charges {
@@ -13,5 +13,22 @@ describe Graphene::DSL do
     result = DummySchema.execute(query_string)["data"]
 
     result.should eq({ "charges" => [{ "id" => "1" }, { "id" => "2" }, { "id" => "3" }] })
+  end
+
+  it "executes a mutation" do
+    query_string = <<-QUERY
+      mutation CreateCharge {
+        createCharge {
+          charge {
+            id
+          }
+        }
+      }
+    QUERY
+
+    result = DummySchema.execute(query_string)["data"]
+
+
+    result.should eq({ "createCharge" => { "charge" => { "id" => "1" } } })
   end
 end

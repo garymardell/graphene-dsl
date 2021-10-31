@@ -22,30 +22,7 @@ module Graphene
       macro inherited
         macro finished
           {% verbatim do %}
-            def self.compile_fields(context) : Array(Graphene::Schema::Field)
-              fields = [] of Graphene::Schema::Field
-
-              {% methods = @type.class.methods.select { |m| m.annotation(Field) } %}
-
-              {% for method in methods %}
-                arguments = [] of Graphene::Schema::Argument
-
-                {% for argument in method.annotations(Argument) %}
-                  arguments << Graphene::Schema::Argument.new(
-                    name: {{argument["name"]}},
-                    type: {{argument["type"]}}.compile(context)
-                  )
-                {% end %}
-
-                fields << Graphene::Schema::Field.new(
-                  name: {{ method.annotation(Field)["name"] }},
-                  type: {{method.annotation(Field)["name"].id}}_type(context),
-                  arguments: arguments
-                )
-              {% end %}
-
-              fields
-            end
+            define_compile_fields
 
             def self.compile(context)
               Graphene::Types::Interface.new(

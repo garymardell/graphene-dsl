@@ -1,6 +1,5 @@
 require "../../src/graphene/dsl"
 require "./models/*"
-require "./resolvers/*"
 
 class BankAccountType < Graphene::DSL::Object
   name "BankAccount"
@@ -157,6 +156,21 @@ class QueryType < Graphene::DSL::Object
   end
 end
 
+class CreateCharge < Graphene::DSL::Mutation
+  field :charge, ChargeType, null: true
+
+  def resolve(argument_values)
+    {
+      "charge" => Charge.new(id: 1, status: "paid", reference: "ch_1234")
+    }
+  end
+end
+
+class MutationType < Graphene::DSL::Object
+  field :createCharge, mutation: CreateCharge
+end
+
 class DummySchema < Graphene::DSL::Schema
   query QueryType
+  mutation MutationType
 end
