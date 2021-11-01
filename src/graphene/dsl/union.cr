@@ -1,17 +1,23 @@
-require "./compilable"
 require "./named"
 require "./fields"
 
 module Graphene
   module DSL
     class Union
-      include Compilable
       include Named
 
       def self.resolve_type(object, context)
       end
 
       def self.resolve(object, context, field_name, argument_values)
+      end
+
+      def self.compile(context)
+        Graphene::Types::Union.new(
+          name: self.graphql_name,
+          type_resolver: Graphene::DSL::UnionResolver.new(self),
+          possible_types: self.possible_types(context)
+        )
       end
 
       macro possible_types(*types)
@@ -28,20 +34,6 @@ module Graphene
 
       def self.possible_types(context)
         [] of Graphene::Type
-      end
-
-      macro inherited
-        macro finished
-          {% verbatim do %}
-            def self.compile(context)
-              Graphene::Types::Union.new(
-                name: self.graphql_name,
-                type_resolver: Graphene::DSL::UnionResolver.new(self),
-                possible_types: self.possible_types(context)
-              )
-            end
-          {% end %}
-        end
       end
     end
   end

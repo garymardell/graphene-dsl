@@ -1,10 +1,8 @@
-require "./compilable"
 require "./named"
 
 module Graphene
   module DSL
     class Enum
-      include Compilable
       include Named
 
       macro value(name, value)
